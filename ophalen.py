@@ -7,12 +7,13 @@ HIER = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("el", f"{SITE}/examenlinks.py"); el = importlib.util.module_from_spec(spec); spec.loader.exec_module(el)
 SLUG = {"Wiskunde A": "wiskunde-a", "Wiskunde B": "wiskunde-b", "Natuurkunde": "natuurkunde", "Scheikunde": "scheikunde",
         "Biologie": "biologie", "Nederlands": "nederlands", "Engels": "engels", "Economie": "economie", "Bedrijfseconomie": "bedrijfseconomie"}
-NAAM = {"o": "opgaven", "c": "correctievoorschrift"}
+NAAM = {"o": "opgaven", "c": "correctievoorschrift", "b": "bijlage", "u": "uitwerkbijlage"}
 taken = []
-for k in json.load(open(f"{SITE}/examenpaginas.json")):
+for k, info in json.load(open(f"{SITE}/examenpaginas.json")).items():
     vak, jt = k.split("|"); jaar, tv = map(int, jt.split("-"))
     basis = el.url(el.VAKCODE[vak], jaar, tv)[:-2]
-    for s in "oc":
+    # bijlage en uitwerkbijlage alleen als het examen er een heeft (zie examenpaginas.json)
+    for s in "oc" + ("b" if info["bijlage"] else "") + ("u" if info["uitwerkbijlage"] else ""):
         pad = f"{HIER}/vwo/{SLUG[vak]}/{jaar}-{tv}-{NAAM[s]}.pdf"
         taken.append((f"{basis}-{s}", pad))
 
